@@ -1,0 +1,3 @@
+add_executable(test_audio_engine test_audio_engine.cpp)
+target_link_libraries(test_audio_engine audio_engine)
+add_test(NAME AudioEngineTest COMMAND test_audio_engine)
