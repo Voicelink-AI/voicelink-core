@@ -1,0 +1,46 @@
+# Build artifacts
+build/
+*.o
+*.obj
+*.so
+*.dll
+*.lib
+*.a
+*.pyd
+*.exp
+*.ilk
+*.pdb
+*.exe
+*.out
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+CTestTestfile.cmake
+Testing/
+install_manifest.txt
+
+# Visual Studio
+*.vcxproj.user
+*.VC.db
+*.VC.opendb
+*.sln
+*.suo
+*.user
+*.ncb
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+venv/
+env/
+pip-wheel-metadata/
+*.egg-info/
+.eggs/
