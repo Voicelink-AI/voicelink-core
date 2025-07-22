@@ -7,7 +7,7 @@ import httpx
 router = APIRouter()
 
 @router.get("/health")
-async def is_ethereum_alive() -> bool:  # (1)!
+async def is_ethereum_alive() -> bool: 
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
