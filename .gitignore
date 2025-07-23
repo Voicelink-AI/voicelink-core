@@ -1,0 +1,124 @@
+# Voicelink .gitignore
+
+# Environment and secrets
+.env
+*.key
+*.pem
+config.local.*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+*.temp
+*.log
+
+# Generated/output files
+*_results.json
+*_output.txt
+generated_*.md
+pipeline_*.json
+voicelink_*.json
+
+# Audio files (usually too large for git)
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+
+# Compiled C++ files
+*.o
+*.obj
+*.exe
+*.dll
+*.lib
+*.a
+*.dylib
+*.so.*
+
+# CMake build directories
+build/
+Build/
+cmake-build-*/
+
+# Model files (too large)
+models/
+*.bin
+*.model
+*.onnx
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.dockerignore
+
+# Documentation build
+docs/_build/
+site/
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Node modules (if any frontend components)
+node_modules/
+.env
