@@ -1,22 +1,23 @@
+"""
+Health check router
+"""
 from fastapi import APIRouter, HTTPException
 from fastapi import status
+from typing import Dict, Any
 from ..config import Config
 import httpx
 
 
-router = APIRouter()
+router = APIRouter(prefix="/api", tags=["health"])
 
 @router.get("/health")
-async def is_ethereum_alive() -> bool: 
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                Config.ETHEREUM_RPC_URL,
-                json={"jsonrpc": "2.0", "method": "web3_clientVersion", "id": 1}
-            )
-            return response.status_code == 200
-    except Exception:
-        return False
+async def health_check() -> Dict[str, Any]:
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "service": "voicelink-core",
+        "version": "1.0.0"
+    }
 
 async def is_elevenlabs_alive() -> bool:
     try:

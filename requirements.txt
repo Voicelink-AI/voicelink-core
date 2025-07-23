@@ -1,6 +1,6 @@
-fastapi
-python-dotenv
-uvicorn[standard]
+fastapi>=0.100.0
+python-dotenv>=1.0.0
+uvicorn[standard]>=0.23.0
 pyannote.audio
 openai-whisper
 vosk
@@ -11,9 +11,9 @@ librosa
 datasets    
 transformers
 speechbrain
-requests
-aiofiles
-python-multipart
+requests>=2.31.0
+aiofiles>=23.0.0
+python-multipart>=0.0.6
 # LLM Provider APIs
 openai>=1.0.0
 google-cloud-aiplatform
@@ -29,3 +29,4 @@ eth-account
 pytest
 pytest-asyncio
 httpx
+pydantic>=2.0.0

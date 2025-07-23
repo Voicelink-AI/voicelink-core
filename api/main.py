@@ -6,16 +6,28 @@ import logging
 from pathlib import Path
 import sys
 import os
+import tempfile
+from typing import Dict, Any
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
 
 from api.config import Config
-from .routers import health, meetings
 
-# Try to import orchestrator
+# Import routers
+from api.routers import health
+
+# Try to import optional modules
 try:
-    from orchestrate_voicelink import VoiceLinkOrchestrator
+    from api.routers import meetings
+    MEETINGS_ROUTER_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Meetings router not available: {e}")
+    MEETINGS_ROUTER_AVAILABLE = False
+
+# Try to import orchestrator from new location
+try:
+    from core.orchestrator import VoiceLinkOrchestrator
     ORCHESTRATOR_AVAILABLE = True
 except ImportError as e:
     logging.warning(f"Orchestrator not available: {e}")
@@ -42,7 +54,12 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router)
-app.include_router(meetings.router)
+
+if MEETINGS_ROUTER_AVAILABLE:
+    app.include_router(meetings.router)
+    logger.info("Meetings router included")
+else:
+    logger.warning("Meetings router not available - some endpoints disabled")
 
 # Initialize orchestrator if available
 orchestrator = None
@@ -72,7 +89,8 @@ async def root():
             "speaker_diarization": True,
             "speech_to_text": True,
             "llm_processing": True,
-            "code_context": True
+            "code_context": True,
+            "meetings_api": MEETINGS_ROUTER_AVAILABLE
         },
         "endpoints": {
             "health": "/health",
@@ -258,4 +276,58 @@ async def get_capabilities():
         "supported_formats": Config.SUPPORTED_AUDIO_FORMATS,
         "max_file_size_mb": Config.MAX_AUDIO_SIZE_MB
     }
+
+@app.post("/process-meeting")
+async def process_meeting(audio_file: UploadFile = File(...)) -> Dict[str, Any]:
+    """Process a meeting audio file"""
     
+    # Save uploaded file temporarily
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
+        content = await audio_file.read()
+        tmp_file.write(content)
+        tmp_file_path = tmp_file.name
+    
+    try:
+        # Process with Voicelink
+        from llm_engine.enhanced_pipeline_with_context import process_audio_with_context
+        from llm_engine.modules.doc_generator import generate_meeting_documentation
+        from llm_engine.modules.voice_qa import add_meeting_to_qa
+        from blockchain.simple_provenance import create_meeting_provenance
+        
+        # Process audio
+        voicelink_results = process_audio_with_context(tmp_file_path)
+        
+        if voicelink_results.get('status') != 'success':
+            return {"error": "Audio processing failed"}
+        
+        # Generate documentation
+        documentation = generate_meeting_documentation(voicelink_results)
+        
+        # Add to Q&A knowledge base
+        add_meeting_to_qa(voicelink_results)
+        
+        # Create provenance
+        provenance = create_meeting_provenance(voicelink_results, documentation)
+        
+        return {
+            "status": "success",
+            "voicelink_analysis": voicelink_results,
+            "documentation": documentation,
+            "provenance": provenance
+        }
+        
+    finally:
+        # Cleanup
+        os.unlink(tmp_file_path)
+
+@app.post("/ask-question")
+async def ask_question(question_data: Dict[str, str]) -> Dict[str, Any]:
+    """Ask a question about processed meetings"""
+    from llm_engine.modules.voice_qa import ask_voice_question
+    
+    question = question_data.get("question", "")
+    if not question:
+        return {"error": "No question provided"}
+    
+    answer = ask_voice_question(question)
+    return answer

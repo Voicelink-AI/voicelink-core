@@ -18,7 +18,7 @@ from persistence.database_service import get_database_service
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/meetings", tags=["meetings"])
+router = APIRouter(prefix="/api/meetings", tags=["meetings"])
 
 # Initialize orchestrator and database service
 config = Config()
