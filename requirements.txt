@@ -1,0 +1,31 @@
+fastapi
+python-dotenv
+uvicorn[standard]
+pyannote.audio
+openai-whisper
+vosk
+torch
+numpy
+pydub
+librosa
+datasets    
+transformers
+speechbrain
+requests
+aiofiles
+python-multipart
+# LLM Provider APIs
+openai>=1.0.0
+google-cloud-aiplatform
+anthropic
+# Database and Storage
+sqlalchemy
+psycopg2-binary
+chromadb
+# Blockchain and Web3
+web3
+eth-account
+# Development dependencies
+pytest
+pytest-asyncio
+httpx
