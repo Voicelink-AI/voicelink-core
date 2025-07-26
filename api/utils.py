@@ -9,6 +9,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 from fastapi import HTTPException, Request
 import json
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ def create_response(
 
 def create_error_response(
     message: str,
-    error_code: str = "GENERIC_ERROR",
+    error_code: str = "UNKNOWN_ERROR",
     details: Optional[Dict] = None
 ) -> Dict[str, Any]:
     """
@@ -78,8 +79,12 @@ async def log_request(request: Request):
 
 def validate_audio_file(file_path: str) -> bool:
     """Validate audio file format and size"""
-    # Mock validation - would check actual file properties
-    return file_path.endswith(('.wav', '.mp3', '.m4a', '.flac'))
+    if not file_path:
+        return False
+    
+    supported_formats = ['.wav', '.mp3', '.m4a', '.flac', '.ogg']
+    file_ext = Path(file_path).suffix.lower()
+    return file_ext in supported_formats
 
 
 def sanitize_filename(filename: str) -> str:
