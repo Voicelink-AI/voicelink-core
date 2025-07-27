@@ -17,13 +17,19 @@ from api.config import Config
 # Import routers
 from api.routers import health
 
-# Try to import optional modules
+# Import the new meetings router
 try:
-    from api.routers import meetings
+    from api.routers import meetings_new as meetings
     MEETINGS_ROUTER_AVAILABLE = True
 except ImportError as e:
-    logging.warning(f"Meetings router not available: {e}")
-    MEETINGS_ROUTER_AVAILABLE = False
+    logging.warning(f"New meetings router not available: {e}")
+    # Fallback to old meetings router
+    try:
+        from api.routers import meetings
+        MEETINGS_ROUTER_AVAILABLE = True
+    except ImportError as e2:
+        logging.warning(f"Meetings router not available: {e2}")
+        MEETINGS_ROUTER_AVAILABLE = False
 
 # Try to import orchestrator from new location
 try:
@@ -57,9 +63,25 @@ app.include_router(health.router)
 
 if MEETINGS_ROUTER_AVAILABLE:
     app.include_router(meetings.router)
-    logger.info("Meetings router included")
+    logger.info("✅ Meetings router loaded successfully")
 else:
-    logger.warning("Meetings router not available - some endpoints disabled")
+    logger.warning("⚠️  Meetings router not available - some endpoints will not work")
+
+# Include analytics router (new comprehensive endpoints)
+try:
+    from api.analytics_endpoints import router as analytics_endpoints_router
+    app.include_router(analytics_endpoints_router)
+    logger.info("✅ Analytics endpoints router loaded successfully")
+except ImportError as e:
+    logger.warning(f"⚠️  Analytics endpoints router not available: {e}")
+
+# Include legacy analytics router
+try:
+    from analytics.api import router as analytics_router
+    app.include_router(analytics_router)
+    logger.info("✅ Analytics router loaded successfully")
+except ImportError as e:
+    logger.warning(f"⚠️  Analytics router not available: {e}")
 
 # Initialize orchestrator if available
 orchestrator = None

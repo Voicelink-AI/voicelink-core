@@ -8,7 +8,7 @@ from typing import Dict, Any, List
 # Add root to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from audio_bridge import load_audio, detect_voice_segments, diarize_speakers, get_audio_info
+from audio_engine.python.audio_bridge import load_audio, detect_voice_segments, diarize_speakers, get_audio_info
 
 # Use smart ASR selector for best available option
 from llm_engine.modules.asr_smart import transcribe_audio_smart as transcribe_audio

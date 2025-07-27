@@ -17,25 +17,35 @@ class Meeting(Base):
     """Meeting session record"""
     __tablename__ = 'meetings'
     
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    # Primary key - using meeting_id to match frontend expectation
+    meeting_id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     title = Column(String, nullable=False)
-    description = Column(Text)
+    description = Column(Text)  # Optional field for frontend
+    status = Column(String, default='processing')  # processing, completed, failed, active, paused
+    participants = Column(JSON)  # List of participant names/emails
+    
+    # Timing fields (frontend expects these)
     start_time = Column(DateTime, default=datetime.utcnow)
     end_time = Column(DateTime)
-    status = Column(String, default='processing')  # processing, completed, failed
-    participants = Column(JSON)  # List of participant names/emails
-    meeting_metadata = Column(JSON)  # Additional meeting metadata
+    created_at = Column(DateTime, default=datetime.utcnow)  # Required by frontend
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Audio processing info
+    # Audio and recording info
+    recording_url = Column(String)  # URL/path to recording file
     audio_file_path = Column(String)
     audio_duration = Column(Float)  # Duration in seconds
     
-    # Processing results
+    # AI processing results (frontend expects these)
+    transcript = Column(JSON)  # Combined transcript for frontend
+    ai_summary = Column(JSON)  # AI-generated summary
+    action_items = Column(JSON)  # Extracted action items
+    
+    # Additional metadata
+    meeting_metadata = Column(JSON)  # Additional meeting metadata
+    
+    # Relationships
     transcripts = relationship("Transcript", back_populates="meeting")
     analysis = relationship("MeetingAnalysis", back_populates="meeting", uselist=False)
-    
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class Transcript(Base):
@@ -43,7 +53,7 @@ class Transcript(Base):
     __tablename__ = 'transcripts'
     
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    meeting_id = Column(String, ForeignKey('meetings.id'), nullable=False)
+    meeting_id = Column(String, ForeignKey('meetings.meeting_id'), nullable=False)  # Updated to use meeting_id
     
     # Transcript data
     speaker = Column(String)
@@ -71,7 +81,7 @@ class MeetingAnalysis(Base):
     __tablename__ = 'meeting_analysis'
     
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    meeting_id = Column(String, ForeignKey('meetings.id'), nullable=False)
+    meeting_id = Column(String, ForeignKey('meetings.meeting_id'), nullable=False)  # Updated to use meeting_id
     
     # LLM processing results
     summary = Column(JSON)  # Meeting summary with executive summary, topics
