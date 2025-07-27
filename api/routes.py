@@ -8,6 +8,7 @@ import logging
 from datetime import datetime
 from enum import Enum
 import uuid
+from audio_engine.engine import transcribe_audio_file, is_available
 
 router = APIRouter()
 
@@ -155,6 +156,13 @@ class AnalyticsResponse(BaseModel):
     sentiment_analysis: dict
     word_cloud_data: List[dict]
 
+class ProcessMeetingResponse(BaseModel):
+    meeting_id: Optional[str]
+    transcript: dict
+    speakers: list
+    technical_terms: list
+    error: Optional[str] = None
+
 # Audio Processing Endpoints
 @router.post("/process-audio", response_model=AudioProcessResponse, tags=["Audio Processing"])
 async def process_audio(request: AudioProcessRequest):
@@ -171,6 +179,33 @@ async def process_audio(request: AudioProcessRequest):
     except Exception as e:
         logging.error(f"Audio processing error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/process-meeting", response_model=ProcessMeetingResponse, tags=["Audio Processing"])
+async def process_meeting(file: UploadFile = File(...), format: str = "wav"):
+    """
+    Process meeting audio using the C++ audio engine.
+    Returns transcript, speaker separation, and technical term detection.
+    """
+    if not is_available():
+        raise HTTPException(status_code=503, detail="Audio engine not available. Deploy audio_engine_py first.")
+    try:
+        file_bytes = await file.read()
+        result = transcribe_audio_file(file_bytes, format)
+        return ProcessMeetingResponse(
+            meeting_id=None,
+            transcript=result.get("transcript"),
+            speakers=result.get("speakers"),
+            technical_terms=result.get("technical_terms_detected"),
+            error=None
+        )
+    except Exception as e:
+        return ProcessMeetingResponse(
+            meeting_id=None,
+            transcript={},
+            speakers=[],
+            technical_terms=[],
+            error=str(e)
+        )
 
 @router.post("/upload-audio", tags=["Audio Processing"])
 async def upload_audio_file(file: UploadFile = File(...)):
