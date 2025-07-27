@@ -70,12 +70,12 @@ class DatabaseService:
     
     def get_statistics(self) -> Dict[str, Any]:
         """Get database statistics"""
-        # TODO: Implement actual statistics
+        # TODO: Implement actual statistics from real database
         return {
-            "total_meetings": 42,
-            "total_hours_processed": 120.5,
-            "average_meeting_duration": 25.3,
-            "active_participants": 15
+            "total_meetings": 0,
+            "total_hours_processed": 0.0,
+            "average_meeting_duration": 0.0,
+            "active_participants": 0
         }
 
 # Global instance
