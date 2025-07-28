@@ -4,7 +4,8 @@ Main FastAPI application entry point for VoiceLink
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.routes import router as api_router
+from api.routers.meetings_new import router as meetings_router
+from api.routers.health import router as health_router
 from api.middleware import ImplementationStatusMiddleware
 
 app = FastAPI(
@@ -48,7 +49,8 @@ app.add_middleware(
 app.add_middleware(ImplementationStatusMiddleware)
 
 # Include API routes
-app.include_router(api_router, prefix="/api/v1")
+app.include_router(meetings_router)
+app.include_router(health_router)
 
 @app.get("/", tags=["Root"])
 async def root():
@@ -56,7 +58,7 @@ async def root():
         "message": "VoiceLink Core API is running",
         "version": "1.0.0",
         "docs": "/docs",
-        "api_base": "/api/v1"
+        "api_base": "/api"
     }
 
 @app.get("/health", tags=["Root"])
