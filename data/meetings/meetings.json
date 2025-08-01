@@ -1,0 +1,202 @@
+{
+  "meet_20250802_020518_2ed116a0": {
+    "meeting_id": "meet_20250802_020518_2ed116a0",
+    "title": "Enhanced Meeting from sample.wav",
+    "description": null,
+    "status": "completed",
+    "audio_file_path": "E:\\voicelink\\voicelink-core\\data\\audio\\20250802_020518_meet_20250802_020518_2ed116a0.wav",
+    "audio_file_name": "sample.wav",
+    "audio_file_size": 299564,
+    "transcript": {
+      "full_text": "SPEAKER_00: Let's discuss the code review feedback.\nSPEAKER_01: Let's start the sprint planning meeting.\nSPEAKER_02: Let's discuss the code review feedback.\nSPEAKER_00: Let's start the sprint planning meeting.",
+      "segments": [
+        {
+          "text": "Let's discuss the code review feedback.",
+          "start_time": 0.0,
+          "end_time": 5.2,
+          "duration": 5.2,
+          "speaker_id": "SPEAKER_00",
+          "confidence": 0.885212309849577,
+          "language": "en"
+        },
+        {
+          "text": "Let's start the sprint planning meeting.",
+          "start_time": 6.1,
+          "end_time": 12.3,
+          "duration": 6.200000000000001,
+          "speaker_id": "SPEAKER_01",
+          "confidence": 0.9082897943484016,
+          "language": "en"
+        },
+        {
+          "text": "Let's discuss the code review feedback.",
+          "start_time": 15.0,
+          "end_time": 20.5,
+          "duration": 5.5,
+          "speaker_id": "SPEAKER_02",
+          "confidence": 0.8744442439966835,
+          "language": "en"
+        },
+        {
+          "text": "Let's start the sprint planning meeting.",
+          "start_time": 21.0,
+          "end_time": 28.7,
+          "duration": 7.699999999999999,
+          "speaker_id": "SPEAKER_00",
+          "confidence": 0.8555698140592491,
+          "language": "en"
+        }
+      ],
+      "total_segments": 4
+    },
+    "speakers": [
+      {
+        "speaker_id": "SPEAKER_00",
+        "segments": [
+          {
+            "text": "Let's discuss the code review feedback.",
+            "timestamp": "00:00:00",
+            "confidence": 0.885212309849577,
+            "duration": 5.2
+          },
+          {
+            "text": "Let's start the sprint planning meeting.",
+            "timestamp": "00:00:21",
+            "confidence": 0.8555698140592491,
+            "duration": 7.699999999999999
+          }
+        ],
+        "total_speaking_time": 12.899999999999999
+      },
+      {
+        "speaker_id": "SPEAKER_01",
+        "segments": [
+          {
+            "text": "Let's start the sprint planning meeting.",
+            "timestamp": "00:00:06",
+            "confidence": 0.9082897943484016,
+            "duration": 6.200000000000001
+          }
+        ],
+        "total_speaking_time": 6.200000000000001
+      },
+      {
+        "speaker_id": "SPEAKER_02",
+        "segments": [
+          {
+            "text": "Let's discuss the code review feedback.",
+            "timestamp": "00:00:15",
+            "confidence": 0.8744442439966835,
+            "duration": 5.5
+          }
+        ],
+        "total_speaking_time": 5.5
+      }
+    ],
+    "technical_terms": [],
+    "created_at": "2025-08-02T02:05:18.340825",
+    "processed_at": "2025-08-02T02:05:18.599849"
+  },
+  "meet_20250802_020537_76e11b39": {
+    "meeting_id": "meet_20250802_020537_76e11b39",
+    "title": "Enhanced Meeting from sample.wav",
+    "description": null,
+    "status": "completed",
+    "audio_file_path": "E:\\voicelink\\voicelink-core\\data\\audio\\20250802_020537_meet_20250802_020537_76e11b39.wav",
+    "audio_file_name": "sample.wav",
+    "audio_file_size": 299564,
+    "transcript": {
+      "full_text": "SPEAKER_00: The authentication middleware needs to be updated.\nSPEAKER_01: Let's start the sprint planning meeting.\nSPEAKER_02: The authentication middleware needs to be updated.\nSPEAKER_00: We should review the database migrations.",
+      "segments": [
+        {
+          "text": "The authentication middleware needs to be updated.",
+          "start_time": 0.0,
+          "end_time": 5.2,
+          "duration": 5.2,
+          "speaker_id": "SPEAKER_00",
+          "confidence": 0.9465762298733925,
+          "language": "en"
+        },
+        {
+          "text": "Let's start the sprint planning meeting.",
+          "start_time": 6.1,
+          "end_time": 12.3,
+          "duration": 6.200000000000001,
+          "speaker_id": "SPEAKER_01",
+          "confidence": 0.8594801324682881,
+          "language": "en"
+        },
+        {
+          "text": "The authentication middleware needs to be updated.",
+          "start_time": 15.0,
+          "end_time": 20.5,
+          "duration": 5.5,
+          "speaker_id": "SPEAKER_02",
+          "confidence": 0.9243036933904997,
+          "language": "en"
+        },
+        {
+          "text": "We should review the database migrations.",
+          "start_time": 21.0,
+          "end_time": 28.7,
+          "duration": 7.699999999999999,
+          "speaker_id": "SPEAKER_00",
+          "confidence": 0.8604802400555756,
+          "language": "en"
+        }
+      ],
+      "total_segments": 4
+    },
+    "speakers": [
+      {
+        "speaker_id": "SPEAKER_00",
+        "segments": [
+          {
+            "text": "The authentication middleware needs to be updated.",
+            "timestamp": "00:00:00",
+            "confidence": 0.9465762298733925,
+            "duration": 5.2
+          },
+          {
+            "text": "We should review the database migrations.",
+            "timestamp": "00:00:21",
+            "confidence": 0.8604802400555756,
+            "duration": 7.699999999999999
+          }
+        ],
+        "total_speaking_time": 12.899999999999999
+      },
+      {
+        "speaker_id": "SPEAKER_01",
+        "segments": [
+          {
+            "text": "Let's start the sprint planning meeting.",
+            "timestamp": "00:00:06",
+            "confidence": 0.8594801324682881,
+            "duration": 6.200000000000001
+          }
+        ],
+        "total_speaking_time": 6.200000000000001
+      },
+      {
+        "speaker_id": "SPEAKER_02",
+        "segments": [
+          {
+            "text": "The authentication middleware needs to be updated.",
+            "timestamp": "00:00:15",
+            "confidence": 0.9243036933904997,
+            "duration": 5.5
+          }
+        ],
+        "total_speaking_time": 5.5
+      }
+    ],
+    "technical_terms": [
+      "middleware",
+      "authentication",
+      "database"
+    ],
+    "created_at": "2025-08-02T02:05:37.932366",
+    "processed_at": "2025-08-02T02:05:37.935506"
+  }
+}

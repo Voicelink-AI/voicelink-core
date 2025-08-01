@@ -26,7 +26,10 @@ def transcribe_audio_file(file_bytes: bytes, format: str = "wav"):
     # Example: result = audio_engine_py.transcribe(file_bytes, format)
     # For now, mock result:
     result = {
-        "transcript": "Speaker 1: Let's discuss the API architecture for user auth.",
+        "transcript": {
+            "full_text": ["Speaker 1: Let's discuss the API architecture for user auth."],
+            "summary": ["API architecture for user auth discussed."]
+        },
         "speakers": [
             {
                 "speaker_id": "Speaker 1",

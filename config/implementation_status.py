@@ -1,49 +1,65 @@
 """
-Implementation status tracker for VoiceLink Core features
+Implementation status tracking for VoiceLink Core features
 """
 
-FEATURE_STATUS = {
-    "audio_engine": {
-        "implemented": False,
-        "dependencies": ["audio_engine_py.cp313-win_amd64.pyd"],
-        "next_steps": "Run deploy_audio_engine.py and integrate C++ module"
-    },
-    "llm_integration": {
-        "implemented": False,
-        "dependencies": ["openai", "anthropic", "google-cloud-aiplatform"],
-        "next_steps": "Configure API keys and implement LLM service layer"
-    },
-    "meeting_management": {
-        "implemented": False,
-        "dependencies": ["database", "storage"],
-        "next_steps": "Set up PostgreSQL and implement meeting CRUD operations"
-    },
-    "blockchain": {
-        "implemented": False,
-        "dependencies": ["web3", "eth-account"],
-        "next_steps": "Configure Web3 provider and implement smart contracts"
-    },
-    "real_time_collaboration": {
-        "implemented": False,
-        "dependencies": ["websockets", "audio_engine"],
-        "next_steps": "Implement WebSocket handlers and real-time audio processing"
-    },
-    "analytics": {
-        "implemented": False,
-        "dependencies": ["meeting_data", "ai_processing"],
-        "next_steps": "Implement data aggregation and AI-powered insights"
-    },
-    "integrations": {
-        "implemented": False,
-        "dependencies": ["oauth2", "external_apis"],
-        "next_steps": "Implement OAuth flows for external services"
-    }
-}
-
 def get_implementation_status():
-    """Get current implementation status"""
-    return FEATURE_STATUS
+    """Get current implementation status of all features"""
+    return {
+        "audio_processing": {
+            "implemented": True,
+            "level": "mock",
+            "description": "Basic audio upload and mock processing"
+        },
+        "meeting_management": {
+            "implemented": True,
+            "level": "basic",
+            "description": "CRUD operations for meetings"
+        },
+        "real_time_transcription": {
+            "implemented": False,
+            "level": "not_started",
+            "description": "WebSocket-based real-time transcription"
+        },
+        "speaker_diarization": {
+            "implemented": True,
+            "level": "mock",
+            "description": "Mock speaker separation"
+        },
+        "llm_integration": {
+            "implemented": True,
+            "level": "mock",
+            "description": "Mock LLM responses"
+        },
+        "blockchain_verification": {
+            "implemented": False,
+            "level": "not_started",
+            "description": "Blockchain meeting verification"
+        },
+        "analytics": {
+            "implemented": True,
+            "level": "basic",
+            "description": "Basic analytics from stored data"
+        },
+        "external_integrations": {
+            "implemented": False,
+            "level": "not_started",
+            "description": "Calendar, Slack, etc. integrations"
+        }
+    }
 
-def is_feature_implemented(feature_name: str) -> bool:
-    """Check if a specific feature is implemented"""
-    return FEATURE_STATUS.get(feature_name, {}).get("implemented", False)
+def get_feature_progress():
+    """Get overall feature implementation progress"""
+    status = get_implementation_status()
+    
+    total_features = len(status)
+    implemented_features = len([f for f in status.values() if f["implemented"]])
+    
+    return {
+        "total_features": total_features,
+        "implemented_features": implemented_features,
+        "progress_percentage": round((implemented_features / total_features) * 100, 1),
+        "status_breakdown": {
+            "implemented": implemented_features,
+            "not_implemented": total_features - implemented_features
+        }
+    }
