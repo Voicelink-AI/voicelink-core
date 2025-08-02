@@ -12,7 +12,7 @@ import tempfile
 import uuid
 
 from api.utils import create_response, create_error_response, validate_audio_file
-from core.orchestrator import VoiceLinkOrchestrator
+from orchestrate_voicelink import VoiceLinkOrchestrator
 from api.config import Config
 from persistence.database_service import get_database_service
 
