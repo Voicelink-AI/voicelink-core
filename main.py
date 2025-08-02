@@ -6,6 +6,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+
 # Use the FIXED routes instead of the problematic ones
 from api.routes_fixed import router as api_router
 
@@ -16,6 +17,7 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
 
 app = FastAPI(
     title="VoiceLink Core API",
@@ -35,7 +37,8 @@ app.add_middleware(
 )
 
 # Include API routes
-app.include_router(api_router, prefix="/api/v1")
+app.include_router(meetings_router)
+app.include_router(health_router)
 
 @app.get("/", tags=["Root"])
 async def root():
@@ -44,7 +47,7 @@ async def root():
         "version": "1.0.0",
         "status": "running",
         "docs": "/docs",
-        "api_base": "/api/v1"
+        "api_base": "/api"
     }
 
 # Add root-level health endpoint to avoid 404s
