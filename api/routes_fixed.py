@@ -2,6 +2,7 @@
 Fixed API routes for VoiceLink Core - Removes problematic service imports
 """
 from fastapi import APIRouter, HTTPException, WebSocket, UploadFile, File, Form
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import logging
@@ -9,6 +10,7 @@ from datetime import datetime
 from enum import Enum
 import uuid
 from pathlib import Path
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -19,9 +21,33 @@ router = APIRouter()
 # In-memory storage for development
 meetings_storage: Dict[str, Dict[str, Any]] = {}
 uploaded_files: Dict[str, Dict[str, Any]] = {}
+file_path_mapping: Dict[str, str] = {}  # Maps meeting_id to actual filename
 
 # Simple storage path
 AUDIO_STORAGE_PATH = "./audio_storage"
+
+def initialize_file_mapping():
+    """Initialize file mapping for existing audio files"""
+    try:
+        storage_path = Path(AUDIO_STORAGE_PATH)
+        if not storage_path.exists():
+            return
+            
+        for file_path in storage_path.glob("*"):
+            if file_path.is_file():
+                filename = file_path.name
+                # Extract meeting_id from filename pattern: timestamp_meeting_id.ext
+                parts = filename.split('_')
+                if len(parts) >= 3:
+                    # meeting_id is everything after the timestamp
+                    meeting_id = '_'.join(parts[2:]).rsplit('.', 1)[0]  # Remove extension
+                    file_path_mapping[meeting_id] = filename
+                    logger.info(f"Mapped existing file: {meeting_id} -> {filename}")
+    except Exception as e:
+        logger.error(f"Error initializing file mapping: {e}")
+
+# Initialize file mapping on module load
+initialize_file_mapping()
 
 # Request/Response Models
 class AudioProcessRequest(BaseModel):
@@ -143,7 +169,11 @@ def save_audio_file_fixed(file_bytes: bytes, filename: str, file_id: str) -> str
         with open(file_path, "wb") as f:
             f.write(file_bytes)
         
+        # Store the mapping for file serving
+        file_path_mapping[file_id] = stored_filename
+        
         logger.info(f"Audio file saved: {file_path}")
+        logger.info(f"File mapping stored: {file_id} -> {stored_filename}")
         return str(file_path)
         
     except Exception as e:
@@ -275,36 +305,75 @@ async def process_meeting(file: UploadFile = File(...), format: str = "wav"):
             "file_path": file_path
         }
         
-        # Generate mock processing result
+        # Generate mock processing result that matches frontend expectations
         mock_result = {
             "transcript": {
-                "full_text": f"Fixed transcript for {file.filename}: This demonstrates that the file upload and processing works correctly with the fixed routes.",
+                "full_text": "SPEAKER_00: Let's start the sprint planning meeting for this week.\nSPEAKER_00: I think we should focus on the API redesign and authentication system.\nSPEAKER_00: The authentication middleware needs to be updated to handle JWT tokens properly.",
                 "segments": [
                     {
-                        "speaker_id": "Speaker_1",
-                        "text": f"Fixed transcript for {file.filename}: File processed successfully.",
-                        "start_time": 0.0,
-                        "end_time": 10.0,
-                        "confidence": 0.90
+                        "text": "Let's start the sprint planning meeting for this week.",
+                        "start_time": 0,
+                        "end_time": 2.666666666666667,
+                        "duration": 2.666666666666667,
+                        "speaker_id": "SPEAKER_00",
+                        "confidence": 0.85,
+                        "language": "en",
+                        "real_transcription": False
+                    },
+                    {
+                        "text": "I think we should focus on the API redesign and authentication system.",
+                        "start_time": 3.1666666666666667,
+                        "end_time": 7.166666666666667,
+                        "duration": 4.000000000000001,
+                        "speaker_id": "SPEAKER_00",
+                        "confidence": 0.95,
+                        "language": "en",
+                        "real_transcription": False
+                    },
+                    {
+                        "text": "The authentication middleware needs to be updated to handle JWT tokens properly.",
+                        "start_time": 7.666666666666668,
+                        "end_time": 10,
+                        "duration": 2.333333333333332,
+                        "speaker_id": "SPEAKER_00",
+                        "confidence": 1.05,
+                        "language": "en",
+                        "real_transcription": False
                     }
                 ],
-                "total_segments": 1
+                "total_segments": 3,
+                "total_duration": 10,
+                "speakers_detected": 1,
+                "processing_method": "enhanced_fallback"
             },
             "speakers": [
                 {
-                    "speaker_id": "Speaker_1",
+                    "speaker_id": "SPEAKER_00",
                     "segments": [
                         {
-                            "text": "Fixed transcript showing successful processing",
+                            "text": "Let's start the sprint planning meeting for this week.",
                             "timestamp": "00:00:00",
-                            "confidence": 0.90,
-                            "duration": 10.0
+                            "confidence": 0.85,
+                            "duration": 2.666666666666667
+                        },
+                        {
+                            "text": "I think we should focus on the API redesign and authentication system.",
+                            "timestamp": "00:00:03",
+                            "confidence": 0.95,
+                            "duration": 4.000000000000001
+                        },
+                        {
+                            "text": "The authentication middleware needs to be updated to handle JWT tokens properly.",
+                            "timestamp": "00:00:07",
+                            "confidence": 1.05,
+                            "duration": 2.333333333333332
                         }
                     ],
-                    "total_speaking_time": 10.0
+                    "total_speaking_time": 10.0,
+                    "segment_count": 3
                 }
             ],
-            "technical_terms": ["fixed", "transcript", "processing", "successful", "audio"],
+            "technical_terms": ["API", "redesign", "authentication", "system", "middleware", "JWT", "tokens"],
         }
         
         transcript_dict = normalize_transcript(mock_result["transcript"])
@@ -319,6 +388,8 @@ async def process_meeting(file: UploadFile = File(...), format: str = "wav"):
             "end_time": datetime.now().isoformat(),
             "recording_url": f"/files/{meeting_id}",
             "transcript": mock_result["transcript"]["full_text"],
+            "transcript_data": mock_result["transcript"],  # Store the full structured transcript
+            "speakers_data": mock_result["speakers"],  # Store speaker information
             "ai_summary": f"Auto-generated meeting from uploaded file: {file.filename}",
             "action_items": ["Review transcript", "Follow up on discussed topics"],
             "description": f"Meeting automatically created from uploaded audio file: {file.filename}",
@@ -503,6 +574,65 @@ async def get_meeting(meeting_id: str):
         logger.error(f"Failed to get meeting: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/meetings/{meeting_id}/transcript", tags=["Meeting Processing"])
+async def get_meeting_transcript(meeting_id: str):
+    """Get detailed transcript for a specific meeting"""
+    try:
+        if meeting_id not in meetings_storage:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Meeting {meeting_id} not found"
+            )
+        
+        meeting_data = meetings_storage[meeting_id]
+        
+        # Get the transcript from the meeting data
+        transcript_text = meeting_data.get("transcript", "")
+        transcript_data = meeting_data.get("transcript_data", {})
+        speakers_data = meeting_data.get("speakers_data", [])
+        
+        # If we have structured transcript data, return it
+        if transcript_data and isinstance(transcript_data, dict):
+            return {
+                "meeting_id": meeting_id,
+                "title": meeting_data.get("title", ""),
+                "transcript": transcript_data,  # Return the full structured transcript
+                "speakers": speakers_data,  # Include speaker information
+                "meeting_info": {
+                    "status": meeting_data.get("status"),
+                    "start_time": meeting_data.get("start_time"),
+                    "duration_minutes": meeting_data.get("duration_minutes", 0),
+                    "participants": meeting_data.get("participants", [])
+                },
+                "generated_at": meeting_data.get("created_at"),
+                "source_file": meeting_data.get("source_file", {}).get("filename") if meeting_data.get("source_file") else None
+            }
+        
+        # Fallback to simple transcript format
+        return {
+            "meeting_id": meeting_id,
+            "title": meeting_data.get("title", ""),
+            "transcript": {
+                "full_text": transcript_text,
+                "has_content": bool(transcript_text and transcript_text.strip()),
+                "length": len(transcript_text) if transcript_text else 0
+            },
+            "meeting_info": {
+                "status": meeting_data.get("status"),
+                "start_time": meeting_data.get("start_time"),
+                "duration_minutes": meeting_data.get("duration_minutes", 0),
+                "participants": meeting_data.get("participants", [])
+            },
+            "generated_at": meeting_data.get("created_at"),
+            "source_file": meeting_data.get("source_file", {}).get("filename") if meeting_data.get("source_file") else None
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get meeting transcript: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Analytics Endpoints
 @router.get("/analytics/overview", response_model=AnalyticsResponse, tags=["Analytics"])
 async def get_analytics_overview():
@@ -607,3 +737,58 @@ async def websocket_audio_stream(websocket: WebSocket):
     except Exception as e:
         logger.error(f"WebSocket error: {e}")
         await websocket.close()
+
+@router.get("/files/{meeting_id}")
+async def serve_audio_file(meeting_id: str):
+    """Serve audio files for meetings"""
+    try:
+        # Check if we have a file mapping for this meeting
+        if meeting_id not in file_path_mapping:
+            logger.warning(f"No file mapping found for meeting_id: {meeting_id}")
+            raise HTTPException(status_code=404, detail="Audio file not found")
+        
+        filename = file_path_mapping[meeting_id]
+        file_path = Path(AUDIO_STORAGE_PATH) / filename
+        
+        # Check if file exists
+        if not file_path.exists():
+            logger.warning(f"Audio file not found: {file_path}")
+            raise HTTPException(status_code=404, detail="Audio file not found")
+        
+        # Determine content type based on file extension
+        file_ext = file_path.suffix.lower()
+        content_type = "audio/wav"
+        if file_ext == ".mp3":
+            content_type = "audio/mpeg"
+        elif file_ext == ".m4a":
+            content_type = "audio/mp4"
+        elif file_ext == ".ogg":
+            content_type = "audio/ogg"
+        
+        logger.info(f"Serving audio file: {file_path} for meeting: {meeting_id}")
+        
+        return FileResponse(
+            path=str(file_path),
+            media_type=content_type,
+            filename=filename,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET",
+                "Accept-Ranges": "bytes"
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error serving audio file for meeting {meeting_id}: {e}")
+        raise HTTPException(status_code=500, detail="Error serving audio file")
+
+@router.get("/debug/file-mapping")
+async def debug_file_mapping():
+    """Debug endpoint to show file mapping"""
+    return {
+        "file_mapping": file_path_mapping,
+        "storage_path": AUDIO_STORAGE_PATH,
+        "total_mapped_files": len(file_path_mapping)
+    }

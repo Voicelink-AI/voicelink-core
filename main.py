@@ -57,6 +57,23 @@ async def root_health():
         "api_health": "/api/v1/health"
     }
 
+# Test file serving endpoint
+from fastapi.responses import FileResponse
+from pathlib import Path
+
+@app.get("/api/v1/test-file-debug")
+async def test_file_debug():
+    """Debug endpoint to test file mapping"""
+    try:
+        from api.routes_fixed import file_path_mapping, AUDIO_STORAGE_PATH
+        return {
+            "file_mapping": file_path_mapping,
+            "storage_path": AUDIO_STORAGE_PATH,
+            "total_mapped_files": len(file_path_mapping)
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 if __name__ == "__main__":
     logger.info("Starting VoiceLink Core API server (Fixed Version)...")
     uvicorn.run(
